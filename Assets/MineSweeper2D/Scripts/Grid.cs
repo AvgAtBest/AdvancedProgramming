@@ -9,11 +9,12 @@ namespace MineSweeper2D
         public GameObject tilePrefab;
         public int width = 10, height = 10;
         public float spacing = .155f;
-
+        public bool hasLost;
         private Tile[,] tiles;
 
         private void Start()
         {
+            hasLost = false;
             GenerateTiles();
         }
         Tile SpawnTile(Vector3 pos)
@@ -100,25 +101,43 @@ namespace MineSweeper2D
         }
         void MouseOver()
         {
-            //if left mouse button is clicked
-            if (Input.GetMouseButtonDown(0))
+            if (!hasLost)
             {
-                //shoots a ray from the main camera to the input positon
-                Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-                //hit data from raycast
-                RaycastHit2D hit = Physics2D.Raycast(mouseRay.origin, mouseRay.direction);
-                ///if we hit a collider
-                if (hit.collider != null)
+                //if left mouse button is clicked
+                if (Input.GetMouseButtonDown(0))
                 {
-                    //get Tile component from the collider
-                    Tile hitTile = hit.collider.GetComponent<Tile>();
-                    //if there is the tile component
-                    if (hitTile != null)
+                    //shoots a ray from the main camera to the input positon
+                    Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    //hit data from raycast
+                    RaycastHit2D hit = Physics2D.Raycast(mouseRay.origin, mouseRay.direction);
+                    ///if we hit a collider
+                    if (hit.collider != null)
                     {
-                        SelectTile(hitTile);
+                        //get Tile component from the collider
+                        Tile hitTile = hit.collider.GetComponent<Tile>();
+                        //if there is the tile component
+                        if (hitTile != null)
+                        {
+                            SelectTile(hitTile);
+                        }
+                    }
+                }
+                if (Input.GetMouseButtonDown(1))
+                {
+                    Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    //hit data from raycast
+                    RaycastHit2D hit = Physics2D.Raycast(mouseRay.origin, mouseRay.direction);
+                    if (hit.collider != null)
+                    {
+                        Tile flagTile = hit.collider.GetComponent<Tile>();
+                        if (flagTile != null && !flagTile.isRevealed)
+                        {
+                            FlagMineTile(flagTile);
+                        }
                     }
                 }
             }
+
         }
         //FF = Flood Fill Algorithm
         void FFunCover(int x, int y, bool[,] visited)
@@ -198,6 +217,7 @@ namespace MineSweeper2D
             {
                 //function to uncover the mine
                 UncoverMine();
+                Lose();
                 //lose
             }
             //otherwise, are there no mines around this tile
@@ -215,6 +235,24 @@ namespace MineSweeper2D
                 //uncover the mines, the 1 being win state
                 UncoverMine(1);
             }
+        }
+        void FlagMineTile(Tile flagged)
+        {
+            int flagTile = GetAdjacentMineCount(flagged);
+            //if the tile hasnt been revealed
+            if (!flagged.isRevealed)
+            {
+                //flag the tile
+                flagged.FlagSprite(flagTile);
+            }
+
+        }
+        void Lose()
+        {
+            hasLost = true;
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            
         }
     }
 }

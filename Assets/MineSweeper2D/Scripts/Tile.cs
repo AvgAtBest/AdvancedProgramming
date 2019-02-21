@@ -14,7 +14,9 @@ namespace MineSweeper2D
         [Header("Reference")]
         public Sprite[] emptySprites;
         public Sprite[] mineSprites;
+        public Sprite flagSprite;
         private SpriteRenderer rend;
+
 
         private void Awake()
         {
@@ -43,6 +45,15 @@ namespace MineSweeper2D
             {
                 //show empty sprite on board
                 rend.sprite = emptySprites[adjacentMines];
+            }
+        }
+        public void FlagSprite(int flaggableTiles)
+        {
+            //if it hasnt been revealed
+            if(isRevealed == false)
+            {
+                //render sprite
+                rend.sprite = flagSprite;
             }
         }
     }
